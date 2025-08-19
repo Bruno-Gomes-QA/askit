@@ -1,6 +1,8 @@
 use std::io::{self, BufRead, Write};
 use std::str::FromStr;
 
+pub(crate) type Validator<T> = Box<dyn Fn(&T) -> bool + 'static>;
+
 /// Errors that `askit` may return.
 #[derive(Debug)]
 pub enum Error {
@@ -188,7 +190,7 @@ where
 {
     pub(crate) base: Prompt<'a>,
     pub(crate) default_val: Option<T>,
-    pub(crate) validator: Option<Box<dyn Fn(&T) -> bool + 'static>>,
+    pub(crate) validator: Option<Validator<T>>,
     pub(crate) validation_msg: Option<String>,
 }
 
@@ -249,7 +251,6 @@ where
         let base = self.base;
 
         loop {
-            // Render message (com dica de default)
             {
                 let mut msg = String::new();
                 msg.push_str(base.message);
@@ -323,17 +324,16 @@ where
                 }
             };
 
-            // Validação
-            if let Some(vf) = &validator {
-                if !vf(&val) {
-                    let msg = validation_msg.clone().unwrap_or_else(|| "Invalid value".to_string());
-                    attempts_left -= 1;
-                    if attempts_left == 0 {
-                        return Err(Error::Validation(msg));
-                    }
-                    writeln!(writer, "{msg}")?;
-                    continue;
+            if let Some(vf) = &validator && !vf(&val) {
+                let msg = validation_msg
+                    .clone()
+                    .unwrap_or_else(|| "Invalid value".to_string());
+                attempts_left -= 1;
+                if attempts_left == 0 {
+                    return Err(Error::Validation(msg));
                 }
+                writeln!(writer, "{msg}")?;
+                continue;
             }
 
             return Ok(val);

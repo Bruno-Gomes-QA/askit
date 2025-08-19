@@ -1,4 +1,4 @@
-use askit::{prompt, Error};
+use askit::{Error, prompt};
 use std::io::{Cursor, sink};
 
 #[test]

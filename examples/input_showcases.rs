@@ -16,12 +16,8 @@ impl FromStr for Point {
         if parts.len() != 2 {
             return Err("expected format: x,y".into());
         }
-        let x: i32 = parts[0]
-            .parse()
-            .map_err(|e| format!("invalid x: {e}"))?;
-        let y: i32 = parts[1]
-            .parse()
-            .map_err(|e| format!("invalid y: {e}"))?;
+        let x: i32 = parts[0].parse().map_err(|e| format!("invalid x: {e}"))?;
+        let y: i32 = parts[1].parse().map_err(|e| format!("invalid y: {e}"))?;
         Ok(Point { x, y })
     }
 }
@@ -35,11 +31,18 @@ fn main() -> Result<(), askit::Error> {
     println!("> name = {name}");
 
     // 2) String with typed default (use String::from(...) for string defaults)
-    let username: String = input!("Username [default=guest]: ", default = String::from("guest"))?;
+    let username: String = input!(
+        "Username [default=guest]: ",
+        default = String::from("guest")
+    )?;
     println!("> username = {username}");
 
     // 3) Integer (u8) with default AND retries
-    let age: u8 = input!("Age [default=18] (retries=2): ", default = 18u8, retries = 2)?;
+    let age: u8 = input!(
+        "Age [default=18] (retries=2): ",
+        default = 18u8,
+        retries = 2
+    )?;
     println!("> age = {age}");
 
     // 4) Integer (u16) with retries (no default)
@@ -51,7 +54,11 @@ fn main() -> Result<(), askit::Error> {
     println!("> threads = {threads}");
 
     // 6) Floating-point (f32) with default + retries
-    let price: f32 = input!("Price [default=9.99] (retries=1): ", default = 9.99f32, retries = 1)?;
+    let price: f32 = input!(
+        "Price [default=9.99] (retries=1): ",
+        default = 9.99f32,
+        retries = 1
+    )?;
     println!("> price = {price}");
 
     // 7) Floating-point (f64) without default (retry on parse error)

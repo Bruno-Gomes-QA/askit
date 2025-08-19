@@ -13,10 +13,10 @@
 //! ```
 //!
 
-mod prompt;
 mod macros;
+mod prompt;
 
-pub use prompt::{prompt, Error, Prompt, TypedPrompt};
+pub use prompt::{Error, Prompt, TypedPrompt, prompt};
 
 /// Helper `Result<T, Error>`.
 pub trait ForceOk<T> {
