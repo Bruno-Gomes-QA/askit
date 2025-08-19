@@ -40,10 +40,10 @@ impl From<io::Error> for Error {
 
 /// Untyped builder for reading and parsing CLI input.
 pub struct Prompt<'a> {
-    message: &'a str,
-    default_str: Option<String>,
-    retries: usize,
-    trim_input: bool,
+    pub(crate) message: &'a str,
+    pub(crate) default_str: Option<String>,
+    pub(crate) retries: usize,
+    pub(crate) trim_input: bool,
 }
 
 impl<'a> Prompt<'a> {
@@ -187,9 +187,9 @@ where
     T::Err: std::fmt::Display,
 {
     pub(crate) base: Prompt<'a>,
-    default_val: Option<T>,
-    validator: Option<Box<dyn Fn(&T) -> bool + 'static>>,
-    validation_msg: Option<String>,
+    pub(crate) default_val: Option<T>,
+    pub(crate) validator: Option<Box<dyn Fn(&T) -> bool + 'static>>,
+    pub(crate) validation_msg: Option<String>,
 }
 
 impl<'a, T> TypedPrompt<'a, T>
@@ -212,7 +212,7 @@ where
         self
     }
 
-    /// Message `.validate` return `false`.
+    /// Message shown when `.validate` returns `false`.
     pub fn message(mut self, msg: &str) -> Self {
         self.validation_msg = Some(msg.to_string());
         self

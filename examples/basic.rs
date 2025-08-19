@@ -1,8 +1,7 @@
-use askit::prompt;
+use askit::ask;
 
-fn main() -> Result<(), askit::Error> {
-    let name: String = prompt("Name: ").get()?;
-    let age: u8 = prompt("Age: ").default("18").retries(2).get()?;
+fn main() {
+    let name: String = ask!("Your name: ");
+    let age: u8 = ask!("Age [default=18] (retries=2): ", default = 18u8, retries = 2);
     println!("Hello, {name} ({age}).");
-    Ok(())
 }

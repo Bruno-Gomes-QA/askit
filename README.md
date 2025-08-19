@@ -1,159 +1,126 @@
 # askit
 
-`askit` is a simple and semantic Rust library to handle interactive CLI prompts, inspired by Python's `input`.  
-It provides an ergonomic and type-safe way to ask users for values, validate them, and display custom messages.
+`askit` is a simple and semantic Rust library to handle interactive CLI
+prompts, inspired by Python's `input`.\
+It provides an ergonomic and type-safe way to ask users for values,
+validate them, and display custom messages.
 
----
+------------------------------------------------------------------------
 
 ## Features
 
-- **`input!` macro**: Ask the user for input with minimal boilerplate.  
-- **Typed input**: Directly parse inputs into Rust types like `i32`, `f64`, `bool`, `String`, and more.  
-- **Validation**: Attach custom validation logic.  
-- **Messages**: Attach messages or hints to guide the user.  
-- **Defaults**: Provide default values if the user presses Enter.  
+-   **`ask!` macro**: The simplest way to get input, panics on error.
+    Perfect for quick scripts and demos.\
+-   **`input!` macro**: Safe version, returns `Result<T, Error>` so you
+    can handle errors gracefully.\
+-   **`.force()` helper**: Lets you call `.force()` on an `input!`
+    result to panic on error.\
+-   **Typed input**: Directly parse inputs into Rust types like `i32`,
+    `f64`, `bool`, `String`, and more.\
+-   **Validation**: Attach custom validation logic.\
+-   **Messages**: Attach messages or hints to guide the user.\
+-   **Defaults**: Provide default values if the user presses Enter.
 
----
+------------------------------------------------------------------------
 
 ## Installation
 
 Add the following to your `Cargo.toml`:
 
-```toml
+``` toml
 [dependencies]
 askit = "0.1.0"
 ```
 
----
+------------------------------------------------------------------------
 
-## Quickstart
+## Quickstart with `ask!` (recommended)
 
-```rust
+``` rust
+use askit::ask;
+
+fn main() {
+    let name: String = ask!("Your name: ");
+    let age: u8 = ask!("Age [default=18]: ", default = 18u8, retries = 2);
+    println!("Hello, {name} ({age}).");
+}
+```
+
+------------------------------------------------------------------------
+
+## Usage Variations
+
+### 1. `ask!` macro (recommended, panics on error)
+
+``` rust
+use askit::ask;
+
+fn main() {
+    let port: u16 = ask!("Port (1..=65535): ", retries = 1);
+    println!("Port: {port}");
+}
+```
+
+### 2. `input!` macro (safe, returns `Result`)
+
+``` rust
 use askit::input;
 
-fn main() {
-    // Basic input as string
-    let name: String = input!("What is your name? ");
-    println!("Hello, {}!", name);
-
-    // Input as integer
-    let age: i32 = input!("How old are you? ");
-    println!("You are {} years old.", age);
-
-    // With default value
-    let country: String = askit::Input::new("Your country: ")
-        .default("Brazil".to_string())
-        .get();
-    println!("Country: {}", country);
-
-    // With validation
-    let age: i32 = askit::Input::new("Age (must be > 18): ")
-        .validate(|&n| if n > 18 { Ok(()) } else { Err("Age must be > 18".into()) })
-        .get();
-    println!("Validated Age: {}", age);
+fn main() -> Result<(), askit::Error> {
+    let name: String = input!("Name: ")?;
+    println!("Name: {name}");
+    Ok(())
 }
 ```
 
----
+### 3. `.force()` helper on `input!` (shortcut)
 
-## Usage Examples
-
-### 1. Basic `input!` macro
-
-```rust
-use askit::input;
+``` rust
+use askit::{input, ForceOk};
 
 fn main() {
-    let name: String = input!("Enter your name: ");
-    let age: i32 = input!("Enter your age: ");
-    println!("{} is {} years old.", name, age);
+    let age: u8 = input!("Age: ").force();
+    println!("Age: {age}");
 }
 ```
 
-### 2. With default values
+------------------------------------------------------------------------
 
-```rust
-use askit::Input;
+## Advanced Usage with `prompt()` Builder
 
-fn main() {
-    let language: String = Input::new("Favorite language: ")
-        .default("Rust".to_string())
-        .get();
-    println!("Favorite language: {}", language);
+``` rust
+use askit::prompt;
+
+fn main() -> Result<(), askit::Error> {
+    let pct: f32 = prompt("Percent: ")
+        .to::<f32>()
+        .default_val(50.0)
+        .retries(3)
+        .validate(|v| *v >= 0.0 && *v <= 100.0)
+        .message("Percent must be between 0 and 100")
+        .get()?;
+    println!("pct = {pct}");
+    Ok(())
 }
 ```
 
-### 3. With validation
-
-```rust
-use askit::Input;
-
-fn main() {
-    let score: i32 = Input::new("Score (0-100): ")
-        .validate(|&s| {
-            if (0..=100).contains(&s) {
-                Ok(())
-            } else {
-                Err("Score must be between 0 and 100".into())
-            }
-        })
-        .get();
-    println!("Validated score: {}", score);
-}
-```
-
----
+------------------------------------------------------------------------
 
 ## Running Examples
 
-Run the examples included in the repository:
-
-```bash
-cargo run --example basic
-cargo run --example validation
+``` bash
+cargo run --example quickstart
 ```
 
----
+------------------------------------------------------------------------
 
 ## Testing
 
-Run the test suite:
-
-```bash
+``` bash
 cargo test
 ```
 
----
-
-## Development Guide
-
-### Branching Strategy
-
-- **`main`**: Always production-ready.  
-- **`develop`**: Integration branch for new features.  
-- **`feature/*`**: Each feature should have its own branch.  
-- **`hotfix/*`**: For urgent fixes to production.  
-
-### Commit Convention
-
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) standard:
-
-- `feat:` – New feature.  
-- `fix:` – Bug fix.  
-- `docs:` – Documentation changes.  
-- `style:` – Code style changes (formatting, etc).  
-- `refactor:` – Code refactoring.  
-- `test:` – Adding or fixing tests.  
-- `chore:` – Other changes (build tools, CI, etc).  
-
-Example:
-
-```
-feat(input): add default typed values
-fix(validate): correct error message display
-```
-
----
+------------------------------------------------------------------------
 
 ## License
 

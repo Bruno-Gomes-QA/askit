@@ -1,6 +1,6 @@
-//! askit: a simple and semantic CLI input library.
+//! askit: a simple and ergonomic CLI input library.
 //!
-//! Quickstart:
+//! Quickstart (com Result):
 //! ```no_run
 //! use askit::prompt;
 //!
@@ -11,8 +11,23 @@
 //!     Ok(())
 //! }
 //! ```
+//!
 
 mod prompt;
 mod macros;
 
 pub use prompt::{prompt, Error, Prompt, TypedPrompt};
+
+/// Helper `Result<T, Error>`.
+pub trait ForceOk<T> {
+    fn force(self) -> T;
+}
+
+impl<T> ForceOk<T> for Result<T, Error> {
+    fn force(self) -> T {
+        match self {
+            Ok(v) => v,
+            Err(e) => panic!("askit error: {e}"),
+        }
+    }
+}

@@ -34,3 +34,10 @@ macro_rules! input {
         $crate::prompt($msg).to().default_val($d).retries($r).get()
     }};
 }
+
+#[macro_export]
+macro_rules! ask {
+    ($($tt:tt)*) => {
+        $crate::input!($($tt)*).unwrap()
+    };
+}
