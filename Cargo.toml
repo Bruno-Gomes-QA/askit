@@ -1,0 +1,13 @@
+[package]
+name = "askit"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "A simple and semantic library to ask for user input in CLI applications. Type-safe parsing, defaults and retries."
+repository = "https://github.com/Bruno-Gomes-QA/askit"
+readme = "README.md"
+keywords = ["cli", "input", "prompt", "stdin", "terminal"]
+categories = ["command-line-interface", "development-tools"]
+authors = ["Bruno Menezes Gomes <bruno.gomes.qa@gmail.com>"]
+
+[dependencies]
