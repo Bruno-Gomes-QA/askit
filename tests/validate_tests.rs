@@ -1,4 +1,4 @@
-use askit::{Error, prompt};
+use askit::{Error, prompt_mod::prompt};
 use std::io::{Cursor, sink};
 
 #[test]

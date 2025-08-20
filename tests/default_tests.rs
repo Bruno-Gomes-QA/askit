@@ -1,4 +1,4 @@
-use askit::prompt;
+use askit::prompt_mod::prompt;
 use std::io::{Cursor, sink};
 
 #[test]

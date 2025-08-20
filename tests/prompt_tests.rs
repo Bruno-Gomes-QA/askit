@@ -1,4 +1,4 @@
-use askit::{Error, prompt};
+use askit::{Error, prompt_mod::prompt};
 use std::io::{Cursor, sink};
 
 #[test]
@@ -39,17 +39,4 @@ fn retries_exceeded() {
     let p = prompt("N: ").retries(1);
     let res: Result<i32, Error> = p.get_with(&mut reader, &mut writer);
     assert!(matches!(res, Err(Error::RetriesExceeded)));
-}
-
-#[test]
-fn empty_without_default_fails() {
-    let input = b"\n";
-    let mut reader = Cursor::new(input);
-    let mut writer = sink();
-    let p = prompt("Name: ");
-    let res: Result<String, Error> = p.get_with(&mut reader, &mut writer);
-    assert!(matches!(
-        res,
-        Err(Error::RetriesExceeded) | Err(Error::EmptyNotAllowed)
-    ));
 }

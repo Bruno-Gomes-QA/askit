@@ -1,10 +1,10 @@
 //! askit: a simple and ergonomic CLI input library.
 //!
-//! Quickstart (com Result):
+//! Quickstart com `Result`:
 //! ```no_run
 //! use askit::prompt;
 //!
-//! fn main() -> Result<(), askit::Error> {
+//! fn sample() -> Result<(), askit::Error> {
 //!     let name: String = prompt("Name: ").get()?;
 //!     let age: u8 = prompt("Age [18]: ").default("18").retries(2).get()?;
 //!     println!("Hello, {} ({}).", name, age);
@@ -12,13 +12,20 @@
 //! }
 //! ```
 //!
+//! Quickstart com macro `input!` (return only String):
+//! ```no_run
+//! use askit::input;
+//!
+//! let name = input!("Name: ");
+//! println!("Hello, {name}");
+//! ```
 
 mod macros;
-mod prompt;
+pub mod prompt_mod;
 
-pub use prompt::{Error, Prompt, TypedPrompt, prompt};
+pub use prompt_mod::{Error, Prompt, TypedPrompt, Validator, prompt};
 
-/// Helper `Result<T, Error>`.
+/// Helper `Result<T, Error>` → forçar unwrap com panic elegante.
 pub trait ForceOk<T> {
     fn force(self) -> T;
 }
