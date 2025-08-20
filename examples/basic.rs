@@ -1,11 +1,7 @@
-use askit::ask;
+use askit::input;
 
 fn main() {
-    let name: String = ask!("Your name: ");
-    let age: u8 = ask!(
-        "Age [default=18] (retries=2): ",
-        default = 18u8,
-        retries = 2
-    );
+    let name: String = input!("Your name: ");
+    let age: u8 = input!("Age: ").parse().unwrap();
     println!("Hello, {name} ({age}).");
 }

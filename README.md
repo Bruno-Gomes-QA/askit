@@ -1,126 +1,140 @@
 # askit
+[![Crates.io](https://img.shields.io/crates/v/askit.svg)](https://crates.io/crates/askit)
+[![Documentation](https://docs.rs/askit/badge.svg)](https://docs.rs/askit)
 
 `askit` is a simple and semantic Rust library to handle interactive CLI
-prompts, inspired by Python's `input`.\
-It provides an ergonomic and type-safe way to ask users for values,
-validate them, and display custom messages.
+prompts, inspired by Python’s `input`.
 
-------------------------------------------------------------------------
+It provides a **pythonic `input!` macro** (always returns `String`) and
+an advanced **`Prompt` builder API** for developers who need retries,
+defaults, type safety, and validation.
+
+---
 
 ## Features
 
--   **`ask!` macro**: The simplest way to get input, panics on error.
-    Perfect for quick scripts and demos.\
--   **`input!` macro**: Safe version, returns `Result<T, Error>` so you
-    can handle errors gracefully.\
--   **`.force()` helper**: Lets you call `.force()` on an `input!`
-    result to panic on error.\
--   **Typed input**: Directly parse inputs into Rust types like `i32`,
-    `f64`, `bool`, `String`, and more.\
--   **Validation**: Attach custom validation logic.\
--   **Messages**: Attach messages or hints to guide the user.\
--   **Defaults**: Provide default values if the user presses Enter.
+- **`input!` macro**: Python-like, minimal, always returns `String`.
+- **`Prompt` builder**: Advanced API for typed input, defaults, retries, and validation.
+- **Type-safe parsing**: With `Prompt`, you can directly parse into Rust types.
+- **Validation**: Attach custom validation logic to user input.
+- **Default values**: Provide defaults if the user presses ENTER.
+- **Retries**: Allow multiple attempts on invalid input.
 
-------------------------------------------------------------------------
+---
 
 ## Installation
 
 Add the following to your `Cargo.toml`:
 
-``` toml
+```toml
 [dependencies]
-askit = "0.1.0"
+askit = "0.2.0"
 ```
 
-------------------------------------------------------------------------
+---
 
-## Quickstart with `ask!` (recommended)
+## Quickstart with input!
 
-``` rust
-use askit::ask;
-
-fn main() {
-    let name: String = ask!("Your name: ");
-    let age: u8 = ask!("Age [default=18]: ", default = 18u8, retries = 2);
-    println!("Hello, {name} ({age}).");
-}
-```
-
-------------------------------------------------------------------------
-
-## Usage Variations
-
-### 1. `ask!` macro (recommended, panics on error)
-
-``` rust
-use askit::ask;
-
-fn main() {
-    let port: u16 = ask!("Port (1..=65535): ", retries = 1);
-    println!("Port: {port}");
-}
-```
-
-### 2. `input!` macro (safe, returns `Result`)
-
-``` rust
+```rust
 use askit::input;
 
-fn main() -> Result<(), askit::Error> {
-    let name: String = input!("Name: ")?;
-    println!("Name: {name}");
-    Ok(())
-}
-```
-
-### 3. `.force()` helper on `input!` (shortcut)
-
-``` rust
-use askit::{input, ForceOk};
-
 fn main() {
-    let age: u8 = input!("Age: ").force();
+    let name = input!("Your name: ");
+    println!("Hello, {name}");
+
+    // Parsing is your responsibility (just like Python’s int(input()))
+    let age: u8 = input!("Age: ").parse().unwrap_or(18);
     println!("Age: {age}");
 }
 ```
 
-------------------------------------------------------------------------
+---
 
-## Advanced Usage with `prompt()` Builder
+## input! macro
 
-``` rust
+- Always returns a `String`.
+- No retries, no defaults, no validation — keep it minimal and Pythonic.
+- If you need anything beyond that, use `Prompt`.
+
+Examples:
+
+```rust
+use askit::input;
+
+fn main() {
+    let city = input!("City: ");
+    println!("City = {city}");
+
+    let number: i32 = input!("Number: ").parse().unwrap();
+    println!("Number = {number}");
+}
+```
+
+---
+
+## Advanced usage with Prompt
+
+The `Prompt` builder gives you more control:
+
+```rust
 use askit::prompt;
 
 fn main() -> Result<(), askit::Error> {
-    let pct: f32 = prompt("Percent: ")
-        .to::<f32>()
-        .default_val(50.0)
-        .retries(3)
-        .validate(|v| *v >= 0.0 && *v <= 100.0)
-        .message("Percent must be between 0 and 100")
-        .get()?;
-    println!("pct = {pct}");
+    let threads: usize = prompt("Threads: ")
+        .to::<usize>()                 // type-safe parsing
+        .default_val(4)                // default if empty input
+        .retries(2)                    // allow multiple attempts
+        .validate(|v| *v > 0)          // custom validation
+        .message("Threads must be > 0")// custom error message
+        .get()?;                       // final input
+
+    println!("threads = {threads}");
     Ok(())
 }
 ```
 
-------------------------------------------------------------------------
+### What Prompt can do
+
+- `.default("str")` → provide a string default.
+- `.to::<T>()` → switch to typed input (`i32`, `f64`, custom types, etc).
+- `.default_val(T)` → set a typed default.
+- `.retries(n)` → allow multiple attempts.
+- `.trim(true/false)` → control whitespace trimming.
+- `.validate(|v| ...)` → attach a custom validator.
+- `.message("...")` → custom validation error message.
+- `.get()` → read input and return `Result<T, Error>`.
+
+---
+
+## Error Handling
+
+All fallible operations return `Result<T, askit::Error>`.
+
+Errors include:
+
+- `Io` → I/O error when reading/writing.
+- `Parse` → Failed to parse into the requested type.
+- `EmptyNotAllowed` → Input was empty and no default was provided.
+- `RetriesExceeded` → Too many failed attempts.
+- `Validation` → Custom validation failed.
+
+---
 
 ## Running Examples
 
-``` bash
-cargo run --example quickstart
+```bash
+cargo run --example input_showcases
 ```
 
-------------------------------------------------------------------------
+---
 
 ## Testing
 
-``` bash
+```bash
 cargo test
 ```
 
-------------------------------------------------------------------------
+---
 
 ## License
 

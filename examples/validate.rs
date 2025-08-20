@@ -1,4 +1,4 @@
-use askit::prompt;
+use askit::prompt_mod::prompt;
 
 fn main() -> Result<(), askit::Error> {
     let port: u32 = prompt("Port: ")
